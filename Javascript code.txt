@@ -1,0 +1,149 @@
+const axios = require('axios');
+const baseUrl = 'http://localhost:3000'; // replace with your API url
+const item = {
+  id: 1,
+  price: 9.99,
+  name: 'Test Item',
+  description: 'This is a test item.'
+};
+const invalidItemId = -1; // assume there is no item with this ID
+
+describe('Item Entity API', () => {
+
+  describe('GET /item/{item_id}', () => {
+
+    it('should allow all roles to get an item', async () => {
+      const response = await axios.get(`${baseUrl}/item/${item.id}`);
+      expect(response.status).toBe(200);
+      expect(response.data).toMatchObject(item);
+    });
+
+    it('should return 404 Not Found when getting an invalid item', async () => {
+      try {
+        await axios.get(`${baseUrl}/item/${invalidItemId}`);
+      } catch (error) {
+        expect(error.response.status).toBe(404);
+      }
+    });
+
+  });
+
+  describe('PUT /item/{item_id}', () => {
+
+    let token; // assume user or admin is logged in with a valid token
+
+    beforeAll(async () => {
+      const response = await axios.post(`${baseUrl}/login`, { username: 'user', password: 'password' });
+      token = response.data.token;
+    });
+
+    it('should allow user and admin to update an item', async () => {
+      const newPrice = 14.99;
+      const response = await axios.put(`${baseUrl}/item/${item.id}`, { price: newPrice }, { headers: { Authorization: `Bearer ${token}` } });
+      expect(response.status).toBe(200);
+      expect(response.data.price).toBe(newPrice);
+    });
+
+    it('should return 401 Unauthorized when updating an item without authentication', async () => {
+      try {
+        await axios.put(`${baseUrl}/item/${item.id}`, { price: 14.99 });
+      } catch (error) {
+        expect(error.response.status).toBe(401);
+      }
+    });
+
+    it('should return 403 Forbidden when updating an item with guest authentication', async () => {
+      try {
+        await axios.put(`${baseUrl}/item/${item.id}`, { price: 14.99 }, { headers: { Authorization: 'Bearer guestToken' } });
+      } catch (error) {
+        expect(error.response.status).toBe(403);
+      }
+    });
+
+  });
+
+ 
+const axios = require('axios');
+
+const baseUrl = 'http://localhost:3000'; // replace with your server URL
+const itemId = 1; // replace with an existing item ID in your database
+const newItem = {
+  id: 10,
+  name: 'New Item',
+  price: 10.99,
+  description: 'This is a new item.',
+};
+
+// GET /item/{item_id} - allowed for all roles
+
+describe('GET /item/{item_id}', () => {
+  // positive test scenario
+  it('should return the item with the given ID for all roles', async () => {
+    const response = await axios.get(`${baseUrl}/item/${itemId}`);
+    expect(response.status).toEqual(200);
+    expect(response.data.id).toEqual(itemId);
+  });
+
+  // negative test scenario
+  it('should return an error for an invalid item ID', async () => {
+    const response = await axios.get(`${baseUrl}/item/999`);
+    expect(response.status).toEqual(404);
+  });
+});
+
+// PUT /item/{item_id} - allowed for user and admin
+
+describe('PUT /item/{item_id}', () => {
+  // positive test scenario
+  it('should update the item with the given ID for user and admin', async () => {
+    const userToken = 'user_jwt_token'; // replace with a valid user JWT token
+    const response = await axios.put(
+      `${baseUrl}/item/${itemId}`,
+      newItem,
+      {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      }
+    );
+    expect(response.status).toEqual(200);
+    expect(response.data.name).toEqual(newItem.name);
+    expect(response.data.price).toEqual(newItem.price);
+    expect(response.data.description).toEqual(newItem.description);
+  });
+
+  // negative test scenario
+  it('should return an error for a guest user', async () => {
+    const response = await axios.put(`${baseUrl}/item/${itemId}`, newItem);
+    expect(response.status).toEqual(401);
+  });
+});
+
+// DELETE /item/{item_id} - allowed for admin only
+
+describe('DELETE /item/{item_id}', () => {
+  // positive test scenario
+  it('should delete the item with the given ID for admin', async () => {
+    const adminToken = 'admin_jwt_token'; // replace with a valid admin JWT token
+    const response = await axios.delete(`${baseUrl}/item/${itemId}`, {
+      headers: {
+        Authorization: `Bearer ${adminToken}`,
+      },
+    });
+    expect(response.status).toEqual(204);
+  });
+
+  // negative test scenario
+  it('should return an error for a user', async () => {
+    const userToken = 'user_jwt_token'; // replace with a valid user JWT token
+    const response = await axios.delete(`${baseUrl}/item/${itemId}`, {
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+    });
+    expect(response.status).toEqual(403);
+  });
+});
+
+
+//******//You can run this test script using a testing framework like Jest. Note that you need to replace the baseUrl, itemId, userToken, and adminToken variables with valid values for your server and test data. You also need to set up the server to handle JWT authentication for user and admin roles.//******//

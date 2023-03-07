@@ -1,0 +1,67 @@
+Endpoint 1: GET /item/{item_id}
+Positive Test Cases:
+
+Retrieve an existing item.
+
+1. Send a GET request to /item/{item_id} where item_id exists.
+2. The server should return a 200 OK response.
+3. The response should contain the details of the requested item.
+
+Retrieve multiple items.
+
+1. Send a GET request to /item/ to retrieve all available items.
+2. The server should return a 200 OK response.
+3. The response should contain a list of all available items.
+
+Negative Test Cases:
+
+Invalid item_id.
+
+1. Send a GET request to /item/{item_id} where item_id does not exist.
+2. The server should return a 404 Not Found response.
+3.Unauthorized access.
+4. Send a GET request to /item/{item_id} as a guest.
+5. The server should return a 401 Unauthorized response.
+
+Endpoint 2: PUT /item/{item_id}
+Positive Test Cases:
+
+1. Update an existing item.
+2. Authenticate as a user or admin.
+3. Send a PUT request to /item/{item_id} with valid item details.
+4. The server should return a 200 OK response.
+5. The response should contain the updated item details.
+
+Negative Test Cases:
+Invalid item_id.
+Authenticate as a user or admin.
+
+1. Send a PUT request to /item/{item_id} where item_id does not exist.
+2. The server should return a 404 Not Found response.
+3. Unauthorized access.
+
+Authenticate as a guest.
+
+1. Send a PUT request to /item/{item_id} with valid item details.
+2. The server should return a 401 Unauthorized response.
+
+Endpoint 3: DELETE /item/{item_id}
+Positive Test Cases:
+
+1. Delete an existing item.
+2. Authenticate as an admin.
+3. Send a DELETE request to /item/{item_id} where item_id exists.
+4. The server should return a 200 OK response.
+
+Negative Test Cases:
+Invalid item_id.
+Authenticate as an admin.
+
+1. Send a DELETE request to /item/{item_id} where item_id does not exist.
+2. The server should return a 404 Not Found response.
+
+Unauthorized access.
+
+1. Authenticate as a user or guest.
+2. Send a DELETE request to /item/{item_id} where item_id exists.
+3. The server should return a 401 Unauthorized response.
